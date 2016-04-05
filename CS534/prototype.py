@@ -58,7 +58,7 @@ class DoodleWindow(wx.Window):
         wx.Window.__init__(self, parent, ID, style=wx.NO_FULL_REPAINT_ON_RESIZE)
         self.SetBackgroundColour("WHITE")
         self.listeners = []
-        self.thickness = 50
+        self.thickness = 40
         self.SetColour("Light Blue")
         self.lines = []
         self.x = self.y = 0
@@ -200,6 +200,9 @@ class DoodleWindow(wx.Window):
             self.x, self.y = pos
             dc.EndDrawing()
 
+    def clearDC(self):
+        dc = wx.BufferedDC(wx.ClientDC(self), self.buffer)
+        dc.Clear()
 
     def OnSize(self, event):
         """
@@ -268,26 +271,40 @@ class DoodleWindow(wx.Window):
 
 class DoodleFrame(wx.Frame):
     def __init__(self, parent):
-        wx.Frame.__init__(self, parent, -1, "Doodle Frame", size=(336,494),
+        wx.Frame.__init__(self, parent, -1, "Doodle Frame", size=(272,430),
                          style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE)
 
 
         toolbar = self.CreateToolBar()
         qtool = toolbar.AddLabelTool(wx.ID_ANY, 'save', wx.Bitmap('save.png'))
         ptool = toolbar.AddLabelTool(wx.ID_ANY, 'predict', wx.Bitmap('save.png'))
+        ctool = toolbar.AddLabelTool(wx.ID_ANY, 'clear', wx.Bitmap('save.png'))
         toolbar.Realize()
 
         self.Bind(wx.EVT_TOOL, self.OnSave, qtool)
         self.Bind(wx.EVT_TOOL, self.OnPredict, ptool)
+        self.Bind(wx.EVT_TOOL, self.OnClear, ctool)
         self.doodle = DoodleWindow(self, -1)
         self.sb = self.CreateStatusBar()
 
-    def OnSave(self):
+    def OnClear(self,event):
+        self.doodle.clearDC()
+
+    def OnSave(self,event):
+        dlg = wx.TextEntryDialog(frame, 'Enter some text','Text Entry')
+        #dlg.SetValue("Default")
+        if dlg.ShowModal() == wx.ID_OK:
+            print 'You entered: %s\n' % dlg.GetValue()
+        dlg.Destroy()
+        self.name=dlg.GetValue()+'.bmp'
+        self.doodle.buffer.SaveFile(self.name, type=wx.BITMAP_TYPE_BMP, palette=None)
+
+    def OnSave_1(self):
         self.name='first.bmp'
         self.doodle.buffer.SaveFile(self.name, type=wx.BITMAP_TYPE_BMP, palette=None)
 
     def OnPredict(self,event):
-        self.OnSave()
+        self.OnSave_1()
         r=imageprocessing.readImg(self.name)
         test_sample=r.getFeature()
         print test_sample
