@@ -17,7 +17,7 @@ class readImg():
     def __init__(self, str):
         im = Image.open(str)
         self.width, self.height = im.size
-
+        #print im.size
         p = np.array(im)
         self.imageMatrix=np.zeros([GRID,GRID])
         imageMatrixWhole=np.zeros([self.height,self.width])

@@ -137,7 +137,7 @@ class smo():
         support_vector_indices = \
             self.alpha > MIN_SUPPORT_VECTOR_MULTIPLIER
 
-        np.savez('multipliers/'+str, bias=self.b, support_multipliers=self.alpha[support_vector_indices],
+        np.savez('classifiers-direction/'+str, bias=self.b, support_multipliers=self.alpha[support_vector_indices],
             support_vectors=self.X[support_vector_indices], support_vector_labels=self.Y[support_vector_indices])
 
     def _f(self,j):

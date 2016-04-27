@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import kernel
 # kernel :1: linear 2: gaussian
 class multiclass():
-    def __init__(self,samples,labels,kernel,c):
+    def __init__(self,samples,labels,kernel,c,str):
         self.u= np.unique(labels)
         self.k=self.u.size
         self.kernel=kernel
@@ -27,14 +27,12 @@ class multiclass():
             samples1= samples[indices1]
             labels1=np.ones(samples1.shape[0])
             for j in range(i+1, self.k):
-                if( i==0 and j==1 or i==0 and j==2 or i==1 and j==2):
-                    continue
                 indices2= labels==self.u[j]
                 samples2= samples[indices2]
                 labels2=np.ones(samples2.shape[0])*(-1)
                 t=trainer.trainer(kernel, c, str(self.u[i])+","+str(self.u[j]))
                 t.train(np.vstack((samples1,samples2)), np.hstack((labels1,labels2)))
-        np.savez('multipliers/labels', ulabels=self.u, k=1)
+        np.savez(str+'/labels', ulabels=self.u, k=1)
 
 class multipredict():
     def __init__(self, test_sample,multiclass):
@@ -77,6 +75,37 @@ class multipredict1():
         print u
         print pp
         self.value=u[np.argmax(pp)]
+
+
+
+def predict_new(test_sample, c):
+        dict={'0.0':0,'1.0':1,'2.0':2,'3.0':3,'4.0':4,'5.0':5,'6.0':6,'7.0':7,'8.0':8,'9.0':9,'a':11,'b':12, 'c':13,'d':14,
+              'e':15,'f':16,'g':17,'h':18,'i':19,'j':20,'k':21,'l':22,'m':23,'n':24,'o':25}
+        print test_sample
+        u=c.get('labels')
+        if(c.get('kernel')==1):
+            ker=kernel.Kernel.gaussian(6)
+        elif(c.get('kernel')==0):
+            ker=kernel.Kernel.linear()
+        else:
+            print "kernel in multipredict1 error"
+
+        pp=np.zeros(u.size)
+        for k in c.keys():
+            if k=='kernel' or k=='labels':
+                continue
+            i=dict.get(k.split(",")[0])
+            j=dict.get(k.split(',')[1])
+            p=predictor.predictor_new(ker,c.get(k),test_sample)
+            if p==1:
+                pp[i]+=1
+                #pp[j]-=1
+            else:
+                pp[j]+=1
+                #pp[i]-=1
+        print u
+        print pp
+        return u[np.argmax(pp)]
 
 
 def main():

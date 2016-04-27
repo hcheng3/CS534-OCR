@@ -14,7 +14,7 @@ import kernel
 MIN_SUPPORT_VECTOR_MULTIPLIER=0.01
 class predictor():
 
-    def __init__(self, kernel, id):
+    def __init__(self, kernel):
         self._bias=np.load('multipliers/'+id+'.npz')['bias']
 
         self._support_multipliers = np.load('multipliers/'+id+'.npz')['support_multipliers']
@@ -32,4 +32,14 @@ class predictor():
                                  self._support_vector_labels):
 
             result += z_i * y_i * self._kernel(x_i, x)
+        return np.sign(result).item()
+
+def predictor_new(kernel, classifier, x):
+
+        result = classifier.bias
+
+        for z_i, x_i, y_i in zip(classifier.support_vectors_multipliers,
+                                 classifier.support_vectors,
+                                 classifier.support_vector_labels):
+            result += z_i * y_i * kernel(x_i, x)
         return np.sign(result).item()

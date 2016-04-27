@@ -19,13 +19,11 @@ class trainer(object):
         self._kernel = kernel
         self._c = c
         self.id=id  #type string
-
     def train(self, X, y):
         """Given the training features X with labels y, returns a SVM
         predictor representing the trained SVM.
         """
         self._compute_multipliers(X,y)
-
     def _compute_multipliers(self, X, y):
         tol=0.001
         passes=4
@@ -33,6 +31,3 @@ class trainer(object):
         res=s.opt()
         #print res
         s.saveM(self.id)
-        #plt.subplot(2, 1, 2)
-        #plt.scatter(X[:,0].ravel(), X[:,1].ravel(), c=res[0], alpha=0.5)
-        #plt.show()
