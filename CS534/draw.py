@@ -90,7 +90,7 @@ class classifier():
         self.support_vector_labels=support_vector_labels
 
 
-
-if __name__ == '__main__':
-    app.debug = True
-    app.run()
+#
+# if __name__ == '__main__':
+#     app.debug = True
+#     app.run()

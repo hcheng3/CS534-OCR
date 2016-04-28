@@ -42,8 +42,10 @@ def main():
     import numpy as np
 
     #str="features_all_without_skeleton"
-    str="features_all_compress5"
-    data_1 = np.genfromtxt(str+".csv",delimiter=",")
+    #str="features_all_compress5"
+    str="multipliers"
+    #data_1 = np.genfromtxt(str+".csv",delimiter=",")
+    data_1=np.genfromtxt("optdigits.tes",delimiter=",")
     i=data_1[:,-1]==5
     ii=data_1[:,-1]==2
     iii=data_1[:,-1]==3
@@ -109,5 +111,5 @@ def main():
     plt.show()
 
 
-#if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+     main()

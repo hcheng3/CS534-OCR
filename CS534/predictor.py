@@ -14,10 +14,10 @@ import kernel
 MIN_SUPPORT_VECTOR_MULTIPLIER=0.01
 #path="multipliers/"
 #path="features_all_without_skeleton/"
-path="features_all_compress5/"
+#path="features_all_compress5/"
 
 class predictor():
-    def __init__(self, kernel, id):
+    def __init__(self, kernel, id,path):
         self._bias=np.load(path+id+'.npz')['bias']
         self._support_multipliers = np.load(path+id+'.npz')['support_multipliers']
         self._support_vectors = np.load(path+id+'.npz')['support_vectors']

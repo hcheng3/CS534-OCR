@@ -33,9 +33,12 @@ class classifier():
 
 def main():
     #strr="features_all_without_skeleton"
-    #strr="features_density_direction"
+    strr="features_profiling_density"
     #data=np.genfromtxt("optdigits.tes",delimiter=",")
-    strr="features_all_compress5"
+    #strr="features_all"
+    #strr="features_profiling"
+    #strr="features_direction"
+    #strr="multipliers"
     data = np.genfromtxt("test_"+strr+".csv",delimiter=",")
     print data.shape
     c=all_classifiers(strr).classifier
@@ -46,7 +49,7 @@ def main():
     test_labels_real=data[:,-1]
     test_labels=[]
     for t in test_samples:
-        p=multiclass.predict_new(t,c)
+        p=multiclass.predict_new(t,c, strr+"/")
         test_labels.append(p)
         print p
     print test_labels
@@ -80,5 +83,6 @@ def main():
 
     size=test_samples.shape[0]
     calculate_confusion(test_labels_real,test_labels)
-#if __name__ == '__main__':
-#    main()
+
+if __name__ == '__main__':
+    main()

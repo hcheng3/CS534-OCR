@@ -44,6 +44,8 @@ def main():
     #str="features_all_without_skeleton"
     str="features_all_compress5"
     data = np.genfromtxt(str+".csv",delimiter=",")
+    #str="multipliers"
+    #data=np.genfromtxt("optdigits.tes",delimiter=",")
 
     X=data[:,:-1]
     Y=data[:,-1]
@@ -53,7 +55,7 @@ def main():
     from sklearn.cluster import AffinityPropagation
     # Compute Affinity Propagation
 
-    af = AffinityPropagation(preference=-150).fit(X)
+    af = AffinityPropagation(preference=-50).fit(X)
     cluster_centers_indices = af.cluster_centers_indices_
     labels_af = af.labels_
     n_clusters_ = len(cluster_centers_indices)
@@ -61,7 +63,7 @@ def main():
     labels_af=test_labels(labels_af, Y)
     cm=calculate_confusion(labels_af,Y)
     print " Fowlkes Mallows index index is: ", calculate_fm(cm,size)
-
+    np.savez(str+"/af_all", n_cluster=n_clusters_, center=af.cluster_centers_, center_labels=labels_af[af.cluster_centers_indices_])
 
 
 
@@ -94,6 +96,7 @@ def main():
 
 
     color=labels_af
+
     xx = manifold.TSNE(n_components=2, init='pca', random_state=0).fit_transform(X)
     ax = fig.add_subplot(122)
     plt.scatter(xx[:, 0], xx[:, 1], c=color, cmap=plt.cm.Spectral)
@@ -104,5 +107,5 @@ def main():
 
     plt.show()
 
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+     main()

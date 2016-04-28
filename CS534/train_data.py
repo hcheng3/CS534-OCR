@@ -5,7 +5,9 @@ import multiclass
 def main():
     #str="features_all_without_skeleton"
     #str="features_density_direction"
-    str="features_all_compress5"
+    #str="features_all"
+    #str="features_profiling"
+    str="features_profiling_density"
     data = np.genfromtxt(str+".csv",delimiter=",")
 
     X=data[:,:-1]
@@ -20,5 +22,5 @@ def main():
 
     print "training done..."
 
-#if __name__ == '__main__':
-#    main()
+if __name__ == '__main__':
+    main()

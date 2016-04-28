@@ -293,7 +293,14 @@ class DoodleFrame(wx.Frame):
         test_sample = self.get_feature_(r.imageMatrixWhole)
         print "test_sample size: ",test_sample.size
         #p=multiclass.multipredict1(test_sample)
-        p=multiclass.predict_new(test_sample,self.c)
+        import affinity_predict
+        a=affinity_predict.affinity_predict(test_sample)
+        if(a.is_vague()):
+            p=multiclass.predict_new(test_sample,self.c)
+            print "svm: ",p," ap: ",a.first_nearest
+        else:
+            p=a.first_nearest
+        #p_1=multiclass.predict_new(test_sample,self.c)
         print p
         self.sb.SetStatusText(str(p))
         self.celsius.SetLabel(str(p))
