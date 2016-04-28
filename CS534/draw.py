@@ -17,7 +17,6 @@ c=None
 def main():
     global c
     c=all_classifiers().classifier
-
     return render_template('index.html')
 
 
@@ -37,7 +36,7 @@ def get_result():
     result = json.loads(result)
     import numpy as np
     r=np.array(result, dtype="float64")
-    print "++++++++++",r[r==1].size
+    #print "++++++++++",r[r==1].size
     width = len(result)
     height = len(result)
     m = height/GRID
@@ -46,22 +45,25 @@ def get_result():
             for j in range(len(result) - 1):
                 if result[i][j] == 1:
                     image_matrix[i/n, j/m] += 1
+    #print "r shape is: ", r.shape
     test = get_feature_(r)
+    #print "test sample is: ", test
     image_matrix = np.zeros([GRID, GRID])
     p = multiclass.predict_new(test, c)
     return p
 
 
 def get_feature_(r):
-    import features
-    print "+++",r.shape
-    f=features.feature_extraction(r)
-    return f.direction()
+    import feature_extraction
+    f=feature_extraction.feature_extraction(r)
+    return f.combine_all()
     #return image_matrix.ravel()*1.0/64
 
+#path="features_all_without_skeleton"
+path="features_all_compress5"
 class all_classifiers():
     def __init__(self):
-        path="classifiers-direction"
+        global path
         u=np.load(path+'/labels.npz')['ulabels']
         print "loading classifiers...labels are: ", u
         self.classifier={}

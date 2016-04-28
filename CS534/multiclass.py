@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import kernel
 # kernel :1: linear 2: gaussian
 class multiclass():
-    def __init__(self,samples,labels,kernel,c,str):
+    def __init__(self,samples,labels,kernel,c,strr):
         self.u= np.unique(labels)
         self.k=self.u.size
         self.kernel=kernel
@@ -30,9 +30,9 @@ class multiclass():
                 indices2= labels==self.u[j]
                 samples2= samples[indices2]
                 labels2=np.ones(samples2.shape[0])*(-1)
-                t=trainer.trainer(kernel, c, str(self.u[i])+","+str(self.u[j]))
+                t=trainer.trainer(kernel, c, str(self.u[i])+","+str(self.u[j]),strr+"/")
                 t.train(np.vstack((samples1,samples2)), np.hstack((labels1,labels2)))
-        np.savez(str+'/labels', ulabels=self.u, k=1)
+        np.savez(strr+'/labels', ulabels=self.u, k=1)
 
 class multipredict():
     def __init__(self, test_sample,multiclass):
@@ -81,7 +81,6 @@ class multipredict1():
 def predict_new(test_sample, c):
         dict={'0.0':0,'1.0':1,'2.0':2,'3.0':3,'4.0':4,'5.0':5,'6.0':6,'7.0':7,'8.0':8,'9.0':9,'a':11,'b':12, 'c':13,'d':14,
               'e':15,'f':16,'g':17,'h':18,'i':19,'j':20,'k':21,'l':22,'m':23,'n':24,'o':25}
-        print test_sample
         u=c.get('labels')
         if(c.get('kernel')==1):
             ker=kernel.Kernel.gaussian(6)
@@ -96,17 +95,41 @@ def predict_new(test_sample, c):
                 continue
             i=dict.get(k.split(",")[0])
             j=dict.get(k.split(',')[1])
-            p=predictor.predictor_new(ker,c.get(k),test_sample)
+            #p=predictor.predictor_new(ker,c.get(k),test_sample)
+            p1=predictor.predictor(ker,k)
+            p=p1.predict(test_sample)
             if p==1:
+
                 pp[i]+=1
                 #pp[j]-=1
             else:
                 pp[j]+=1
                 #pp[i]-=1
+            #print i,j, p
         print u
         print pp
-        return u[np.argmax(pp)]
+        res=u[np.argmax(pp)]
+        if ((res!=5 and res!=2 and res!=3 ) or (res==5 and pp[2]<pp[5]-1 and pp[3]<pp[5]-1) or (res==2 and pp[5]<pp[2]-1 )\
+                 or (res==3 and pp[5]<pp[3]-1) ):
+            return res
+        path="features_all_compress5/"
+        center=np.load(path+"af235.npz")['center']
+        center_labels=np.load(path+"af235.npz")['center_labels']
+        mini=10000000000
+        j=0
+        print center.shape
+        for i in range(1,center.shape[0]):
+            iii=compute_distance(test_sample,center[i])
+            if mini>iii:
+                mini=iii
+                j=i
+        print "return the cluster: ", j, "distance is ", mini
+        return center_labels[j]
 
+
+def compute_distance(x,y):
+    from math import sqrt
+    return sqrt(sum((x-y)**2))
 
 def main():
     data = np.genfromtxt("optdigits.tra",delimiter=",")

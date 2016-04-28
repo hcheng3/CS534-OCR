@@ -15,7 +15,8 @@ import smo
 MIN_SUPPORT_VECTOR_MULTIPLIER=0.01
 
 class trainer(object):
-    def __init__(self, kernel, c, id):
+    def __init__(self, kernel, c, id, path):
+        self.path=path
         self._kernel = kernel
         self._c = c
         self.id=id  #type string
@@ -27,7 +28,7 @@ class trainer(object):
     def _compute_multipliers(self, X, y):
         tol=0.001
         passes=4
-        s=smo.smo(self._c, tol, passes, X, y, self._kernel)
+        s=smo.smo(self._c, tol, passes, X, y, self._kernel,self.path)
         res=s.opt()
         #print res
         s.saveM(self.id)

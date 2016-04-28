@@ -9,24 +9,6 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 
-#-------------------------------------------------------------------------------
-# Name:        draw
-# Purpose:
-#
-# Author:      Administrator
-#
-# Created:     30/03/2016
-# Copyright:   (c) Administrator 2016
-# Licence:     <your licence>
-#-------------------------------------------------------------------------------
-
-# doodle.py
-
-"""
-This module contains the DoodleWindow class which is a window that you
-can do simple drawings upon.
-"""
-
 
 import wx                  # This module uses the new wx namespace
 #----------------------------------------------------------------------
@@ -164,7 +146,7 @@ class DoodleWindow(wx.Window):
     def OnLeftDown(self, event):
         """called when the left mouse button is pressed"""
         self.curLine = []
-        self.x, self.y = event.GetPositionTuple()
+        self.x, self.y = event.GetPosition()
         self.CaptureMouse()
 
 
@@ -191,14 +173,14 @@ class DoodleWindow(wx.Window):
         """
         if event.Dragging() and event.LeftIsDown():
             dc = wx.BufferedDC(wx.ClientDC(self), self.buffer)
-            dc.BeginDrawing()
+            # dc.BeginDrawing()
             dc.SetPen(self.pen)
-            pos = event.GetPositionTuple()
-            coords = (self.x, self.y) + pos
+            pos = event.GetPosition()
+            coords = (self.x, self.y, pos[0],pos[1])
             self.curLine.append(coords)
             dc.DrawLine(self.x, self.y, pos[0], pos[1])
             self.x, self.y = pos
-            dc.EndDrawing()
+            # dc.EndDrawing()
 
     def clearDC(self):
         dc = wx.BufferedDC(wx.ClientDC(self), self.buffer)
@@ -235,17 +217,17 @@ class DoodleWindow(wx.Window):
         dc = wx.BufferedPaintDC(self, self.buffer)
 
 
-    def DrawLines(self, dc):
+    def DrawLines(self,dc):
         """
         Redraws all the lines that have been drawn already.
         """
-        dc.BeginDrawing()
+        # dc.BeginDrawing()
         for colour, thickness, line in self.lines:
             pen = wx.Pen(colour, thickness, wx.SOLID)
             dc.SetPen(pen)
             for coords in line:
                 apply(dc.DrawLine, coords)
-        dc.EndDrawing()
+        # dc.EndDrawing()
 
 
     # Event handlers for the popup menu, uses the event ID to determine
@@ -271,14 +253,14 @@ class DoodleWindow(wx.Window):
 
 class DoodleFrame(wx.Frame):
     def __init__(self, parent):
-        wx.Frame.__init__(self, parent, -1, "Doodle Frame", size=(272,430),
+        wx.Frame.__init__(self, parent, -1, "CS534", size=(256,343),
                          style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE)
 
-
+        self.Center()
         toolbar = self.CreateToolBar()
-        qtool = toolbar.AddLabelTool(wx.ID_ANY, 'save', wx.Bitmap('save.png'))
-        ptool = toolbar.AddLabelTool(wx.ID_ANY, 'predict', wx.Bitmap('save.png'))
-        ctool = toolbar.AddLabelTool(wx.ID_ANY, 'clear', wx.Bitmap('save.png'))
+        qtool = toolbar.AddLabelTool(wx.ID_ANY, 'save', wx.Bitmap('Flag-blue-48.png'))
+        ptool = toolbar.AddLabelTool(wx.ID_ANY, 'predict', wx.Bitmap('Flag-greed-48.png'))
+        ctool = toolbar.AddLabelTool(wx.ID_ANY, 'clear', wx.Bitmap('Flag-red-48.png'))
         toolbar.Realize()
 
         self.Bind(wx.EVT_TOOL, self.OnSave, qtool)
@@ -286,6 +268,8 @@ class DoodleFrame(wx.Frame):
         self.Bind(wx.EVT_TOOL, self.OnClear, ctool)
         self.doodle = DoodleWindow(self, -1)
         self.sb = self.CreateStatusBar()
+        self.celsius = wx.StaticText(self, label='', pos=(220, 10))
+        self.c=all_classifiers().classifier
 
     def OnClear(self,event):
         self.doodle.clearDC()
@@ -297,7 +281,7 @@ class DoodleFrame(wx.Frame):
             print 'You entered: %s\n' % dlg.GetValue()
         dlg.Destroy()
         self.name=dlg.GetValue()+'.bmp'
-        self.doodle.buffer.SaveFile(self.name, type=wx.BITMAP_TYPE_BMP, palette=None)
+        self.doodle.buffer.SaveFile('store_images/'+self.name, type=wx.BITMAP_TYPE_BMP, palette=None)
 
     def OnSave_1(self):
         self.name='first.bmp'
@@ -306,13 +290,53 @@ class DoodleFrame(wx.Frame):
     def OnPredict(self,event):
         self.OnSave_1()
         r=imageprocessing.readImg(self.name)
-        test_sample=r.getFeature()
-        print test_sample
-        p=multiclass.multipredict1(test_sample)
-        print p.value
-        self.sb.SetStatusText(str(p.value))
+        test_sample = self.get_feature_(r.imageMatrixWhole)
+        print "test_sample size: ",test_sample.size
+        #p=multiclass.multipredict1(test_sample)
+        p=multiclass.predict_new(test_sample,self.c)
+        print p
+        self.sb.SetStatusText(str(p))
+        self.celsius.SetLabel(str(p))
 
-#----------------------------------------------------------------------
+
+    def get_feature_(self,r):
+        import feature_extraction
+        f=feature_extraction.feature_extraction(r)
+        return f.combine_all()
+
+
+import numpy as np
+#path="features_all_without_skeleton"
+path="features_all_compress5"
+class all_classifiers():
+    def __init__(self):
+        global path
+        u=np.load(path+'/labels.npz')['ulabels']
+        print "loading classifiers...labels are: ", u
+        self.classifier={}
+        self.classifier['kernel']=np.load(path+'/labels.npz')['k']
+        self.classifier['labels']=u
+        uu=list(u)
+        for i in u:
+            uu.remove(i)
+            for j in uu:
+                id=str(i)+","+str(j)
+                bias=np.load(path+'/'+id+'.npz')['bias']
+                support_multipliers = np.load(path+'/'+id+'.npz')['support_multipliers']
+                support_vectors = np.load(path+'/'+id+'.npz')['support_vectors']
+                support_vector_labels = np.load(path+'/'+id+'.npz')['support_vector_labels']
+                c=classifier(bias,support_vectors,support_multipliers,support_vector_labels)
+                self.classifier[id]=c
+        print len(self.classifier)-2, "classifiers are loaded..."
+
+class classifier():
+    def __init__(self, bias, support_vectors, support_vector_multipliers, support_vector_labels):
+        self.bias=bias
+        self.support_vectors=support_vectors
+        self.support_vectors_multipliers=support_vector_multipliers
+        self.support_vector_labels=support_vector_labels
+
+
 
 if __name__ == '__main__':
     app = wx.PySimpleApp()

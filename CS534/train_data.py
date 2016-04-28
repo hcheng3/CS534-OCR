@@ -2,15 +2,23 @@ import kernel
 import numpy as np
 import multiclass
 
-data = np.genfromtxt("features_direction.csv",delimiter=",")
+def main():
+    #str="features_all_without_skeleton"
+    #str="features_density_direction"
+    str="features_all_compress5"
+    data = np.genfromtxt(str+".csv",delimiter=",")
 
-samples=data[:,:-1]
-labels=data[:,-1]
-
-k=kernel.Kernel.gaussian(6)
-str="classifiers-direction"
-m=multiclass.multiclass(samples,labels,k,20,str)
+    X=data[:,:-1]
+    y=data[:,-1]
 
 
+    X_new=X
 
-print "training done..."
+    k=kernel.Kernel.gaussian(6)
+    m=multiclass.multiclass(X_new,y,k,20,str)
+
+
+    print "training done..."
+
+#if __name__ == '__main__':
+#    main()

@@ -17,7 +17,7 @@ import timeit
 MIN_SUPPORT_VECTOR_MULTIPLIER=0.01
 
 class smo():
-    def __init__(self, C, tol, max_passes, X, Y, kernel):
+    def __init__(self, C, tol, max_passes, X, Y, kernel,path):
         self.n_samples, self.n_features = X.shape
         self.alpha=np.zeros(self.n_samples)  # n_samples*1
         self.b=0
@@ -33,6 +33,7 @@ class smo():
         #end = timeit.timeit()
         #print "endkernel: ", end
         self.E=-self.Y
+        self.path=path
 
     def _getKernelMatrix(self):
         n_samples, n_features = self.X.shape
@@ -137,7 +138,7 @@ class smo():
         support_vector_indices = \
             self.alpha > MIN_SUPPORT_VECTOR_MULTIPLIER
 
-        np.savez('classifiers-direction/'+str, bias=self.b, support_multipliers=self.alpha[support_vector_indices],
+        np.savez(self.path+str, bias=self.b, support_multipliers=self.alpha[support_vector_indices],
             support_vectors=self.X[support_vector_indices], support_vector_labels=self.Y[support_vector_indices])
 
     def _f(self,j):
