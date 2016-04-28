@@ -15,26 +15,30 @@ GRID=8
 
 class readImg():
     def __init__(self, str):
-        im = Image.open(str)
-        self.width, self.height = im.size
+        self.im = Image.open(str)
+        self.width, self.height = self.im.size
+        self.imageMatrixWhole = np.zeros([self.height, self.width])
 
-        p = np.array(im)
+        p = np.array(self.im)
+        # print p.shape
         self.imageMatrix=np.zeros([GRID,GRID])
-        imageMatrixWhole=np.zeros([self.height,self.width])
+        # imageMatrixWhole=np.zeros([self.height,self.width])
         for i in range(p.shape[0]-1):
             for j in range(p.shape[1]-1):
                 b=np.array_equal(p[i][j],np.array([255,255,255]))
                 if b:
-                    imageMatrixWhole[i][j]=0
+                    self.imageMatrixWhole[i][j]=0
                 else:
-                    imageMatrixWhole[i][j]=1
+                    self.imageMatrixWhole[i][j]=1
                     #print i,j, p.shape, self.convertTo(i,j)
-                    self.imageMatrix[self.convertTo(i,j)[0], self.convertTo(i,j)[1]]+=1
+                    # self.imageMatrix[self.convertTo(i,j)[0], self.convertTo(i,j)[1]]+=1
 
-    def convertTo(self,i,j):
-        m=self.height/GRID
-        n=self.width/GRID
-        return [i/n,j/m]
 
-    def getFeature(self):
-        return self.imageMatrix.ravel()/100
+    # def convertTo(self,i,j):
+    #     m=self.height/GRID
+    #     n=self.width/GRID
+    #     return [i/n,j/m]
+    #
+    # def getFeature(self):
+    #
+    #     return self.imageMatrix.ravel()/100
